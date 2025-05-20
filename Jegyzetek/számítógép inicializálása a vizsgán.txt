@@ -1,0 +1,21 @@
+- Törlési jóváhagyás
+- Fájlnévkiterjesztések
+- vs és vs code betűméret. Hol pontosan (rutinosan csináljaam)
+- vscode autosave
+
+VSCode:
+- File>Settings>Preferences
+	SEarch for "tree"
+	Tree indent := 25
+- A jobb alsó vonalban látok valami olyasmit, hogy "Spaces: 4" --> ott lehet beállítani a tab billentyű által kreált indentáció mértékét
+
+
+Pontozás:
+- Konzol 15
+- Grafikus 10
+- web 10
+- backend 15
+- frontend 15
+
+
+

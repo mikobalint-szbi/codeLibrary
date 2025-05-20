@@ -1,0 +1,131 @@
+
+> composer create-project laravel/laravel <projektNeve>
+
+.env fájl: visszakommentelem az adatbázis-adatsorokat. Beállítom az adatbázis nevét
+	(Ampps esetén jelszó legyen 'mysql')
+
+> php artisan make:model Kategoria -m  //migráció
+> php artisan make:model Ingatlan -mc --api
+
+create_kategorias migráció fájl:
+	up() függvény +=                   // az up függvényben definiálod a táblázat oszlopait
+		$table->string('nev');
+
+create_ingatlans migráció fájl:
+	up() függvény += 
+		$table->foreignId('kategoria')->references('id')->on('kategorias');
+		$table->string('leiras')->nullable();
+		$table->dateTime('hirdetesDatuma')->nullable()->default(DB::raw("CURRENT_TIMESTAMP"));     	      
+		$table->boolean('tehermentes');																// Alapértelmezésképp mindegyik mező kötelező (nonnullable)
+		$table->integer('ar');
+		$table->string('kepURL')->nullable();
+		
+kategoria.php model
+	kategoria class:
+		public $table = 'kategorias';
+		public $timestamps = false;
+	
+ingatlans.php model
+	ingatlan class:
+		public $table = 'ingatlanok';
+		public $timestamps = false;
+
+DatabaseSeeder.php
+	- Hozzáad: use App\Models\Kategoria;
+	- Kivesszük a run() functionből, ami benne van
+	- Helyette:
+		
+		$kategorias = ['Ház', 'Lakás', 'Építési telek', 'Garázs', 'Mezőgazdasági terület', 'Ipari ingatlan']
+		
+		foreach ($kategorias as $kategoria) 
+		{
+			Kategoria::create([
+				'nev' => $kategoria
+			]);
+		}
+		
+- Az ingatlan táblát fel kell töltenünk az ingatlanok.csv tartalmával (Az első sor ki kell, hogy maradjon!!)
+
+> php artisan install:api
+	Válasz: 'n' -> nem szeretném, hogy migráljon
+
+Ha nincs rá szükségünk:
+	> composer remove sanctum
+	- A sanctum.php-t töröljük a config mappából
+
+IngatlanController.php:
+	index függvény (adatok megjelenítésére szolgál):
+		$ingatlanok = ingatlan::all();  		 // Ezen sor helyett új változat: ingatlan::with('kategoria')->get();      //with, tehát a kategoria-subJSON-nel együtt tálalja a JSON-t a kategoria_id helyett
+		return response()->json($ingatlanok)
+
+api.php +=
+	use App\Http\Controllers\IngatlanController;
+	Route::get('/ingatlan', [IngatlanController::class, 'index'];
+
+ingatlan.php model:
+	ingatlan class:
+		- új metódust hozunk létre:         // ez a '::with'-hez kell, hogy működjön
+			public function kategoria()   
+			{
+				return $this->belongsTo(Kategoria::class, 'kategoria');
+			}
+			// ez csinálja meg azt, hogy a kategoria_id helyett maga a kategoria subJSON jelenjen meg a JSON-válaszban
+		
+- Teszteljük a végpontot
+	[GET] http://localhost:8000/api/ingatlan
+
+
+IngatlanController.php:
+	function store:
+		$validator = Validator::make($requers->all()), [
+			'kategoria' => 'required',
+			'tehermentes' => 'required',
+			'ar' => 'required',
+		]);
+		
+		if ($validator->fails()) {
+			
+			return response()->json(['message' => 'Hiányos adatok.'], 400);
+		
+		}
+		return Ingatlan::create($request->all());
+
+
+ingatlan.php model +=
+	// public $fillable = ['', '']  //whiteList  (vagy $fillable vagy $guarded, csak az egyik, nem mindkettő)
+	public $guarded = []   //blackList: üresen hagyjuk, tehát minden oszlop szerkesztését engedélyezünk
+	
+
+IngatlanController.php:
+	// célunk most, hogy ne mindent adjon vissza a végpont, hanem csak az ID-t.
+	
+	$ingatlan = Ingatlan::create($request->all());
+	return response()->json()([
+		'id' => $ingatlan->id,
+	])
+
+
+- 8. feladat
+
+IngatlanController:
+	destroy($id) függvény:
+	
+		$ingatlan = Ingatlan::where('id', $id)->first();       // a where() után mindig kell ->first() vagy ->get()    (az elsőt vagy az összeset)
+			// ↑ Ehelyett praktikusabb: $ingatlan = Ingatlan::fing($id)
+		
+		if ($ingatlan->exists()){
+			$ingatlan->delete();
+			return response('', 204)
+		}
+		return response('Az ingatlan nem létezik.', 404)
+		
+api.php:
+	Route::delete('/ingatlan', [IngatlanController::class, 'destroy'];
+	
+
+- Teszteljük a végpontot
+
+
+- a feladat végén:
+	• Export készítése a teljes ingatlan adatbázisról (phpmyadmin-ben) (kijelölöd az adatbázist és felül ott van az export fül)
+	• Export a tesztekről (insomnia)
