@@ -1,0 +1,72 @@
+
+Controllerek
+============
+
+// Index:
+
+public function index()
+{
+    return response()->json(Model::all(), 200);
+}
+
+
+// Show:
+
+public function show($id)
+{
+    $data = Model::find($id);
+
+    if (!$data) {
+        return response()->json(['message' => 'Nem található.'], 404);
+    }
+
+    return response()->json($data, 200);
+}
+
+
+// Létrehozás:
+
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'cim' => 'required|string|max:255',
+        'ar' => 'required|integer|min:0',
+    ]);
+
+    $model = Model::create($validated);
+
+    return response()->json($model, 201);
+}
+
+
+// Frissítés:
+
+public function update(Request $request, $id)
+{
+    $model = Model::find($id);
+
+    if (!$model) {
+        return response()->json(['message' => 'Nem található.'], 404);
+    }
+
+    $model->update($request->all());
+
+    return response()->json($model, 200);
+}
+
+
+// Törlés:
+
+public function destroy($id)
+{
+    $model = Model::find($id);
+
+    if (!$model) {
+        return response()->json(['message' => 'Nem található.'], 404);
+    }
+
+    $model->delete();
+
+    return response()->json(['message' => 'Sikeresen törölve.'], 200);
+}
+
