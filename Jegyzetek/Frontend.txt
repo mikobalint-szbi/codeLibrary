@@ -1,0 +1,59 @@
+
+Svelte 5
+
+Új projekt:
+npx sv create my-app
+cd my-app
+npm install
+npm run dev
+
+
+Make a var reactive: let varName = $state(varValue)
+Listával is működik: let list = $state([1,2,3,4])
+
+Ha egy változó értéke más reaktív változók értékeiből számolódik ki:
+let a = $state(1)
+let b = $derived(a+1)
+
+A $state a .svelte.js fájlokban is használható exportálandó változók értékei körül.
+
+derive = származik, származtat
+
+import { $inspect } from 'svelte/internal';
+
+Pillanatkép készítése a reaktív változóról (pl console log végett)
+$state.snapshot(numbers)
+
+Komponensek bekérendő paraméterei:
+	let { answer } = $props();
+    let { answer = 'a mistery' } = $props();  // alapértelmezett érték megadása
+    let { answer, ...stuff } = $props();  // az összes többi argumentum gyűjtőhelye
+
+
+{#each colors as color, i}
+{/each}
+
+
+
+
+Kevésbé releváns jegyzetek
+﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋﹋
+<img src={src}> --> <img {src}>  // ugyanaz a változó és az attribútum neve
+↓
+let obj = {alt: "myAlt", title: myTitle}
+<img alt={obj.alt} title={obj.title} --> <img {...obj}>
+
+- Ha egy {}-ba @html-t teszel, akkor nem stringként, hanem HTML-ként fordítja.
+
+A $-lel kezdődő cuccokat úgy hívják, hogy rune
+
+Mi a tökömre jó az $inspect
+    https://svelte.dev/tutorial/svelte/inspecting-state
+   
+   
+{#each things as thing (thing.id)} // egy kulcs a svelte számára megadva zárójelben, ami alapján jobban követni tudja az objektumtömböt
+	<Thing name={thing.name}/>
+{/each}
+
+
+
