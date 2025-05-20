@@ -1,0 +1,32 @@
+using MySqlConnector;
+
+public partial class Form1 : Form
+{
+    private string connectionString = "server=localhost;user=root;password=;database=yourdatabase;";
+
+    public Form1()
+    {
+        InitializeComponent();
+        LoadData();
+    }
+
+    private void LoadData()
+    {
+        using (MySqlConnection conn = new MySqlConnection(connectionString))
+        {
+            try
+            {
+                conn.Open();
+                string query = "SELECT * FROM your_table_name";
+                MySqlDataAdapter adapter = new MySqlDataAdapter(query, conn);
+                DataTable dt = new DataTable();
+                adapter.Fill(dt);
+                dataGridView1.DataSource = dt; // DataGridView vezérlő a formon
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Hiba történt: " + ex.Message);
+            }
+        }
+    }
+}
