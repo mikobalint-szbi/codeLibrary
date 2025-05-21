@@ -30,3 +30,66 @@ public partial class Form1 : Form
         }
     }
 }
+
+
+// --------------------------------------------------------
+
+using MySqlConnector;
+using System;
+using System.IO;
+
+...
+
+using (var conn = new MySqlConnection(connectionString))
+{
+    conn.Open();
+    var cmd = new MySqlCommand("SELECT * FROM example", conn);
+    using (var reader = cmd.ExecuteReader())
+    {
+        while (reader.Read())
+        {
+            // Integer
+            int id = reader.GetInt32("id");
+
+            // String
+            string name = reader.GetString("name");
+
+            // Nullable int (e.g., age can be NULL)
+            int? age = reader.IsDBNull("age") ? null : reader.GetInt32("age");
+
+            // Decimal (money, etc.)
+            decimal salary = reader.GetDecimal("salary");
+
+            // Boolean
+            bool isActive = reader.GetBoolean("is_active");
+
+            // DateTime (DATETIME)
+            DateTime createdAt = reader.GetDateTime("created_at");
+
+            // Date only
+            DateTime birthDate = reader.GetDateTime("birth_date"); // Still DateTime in C#
+
+            // Timestamp
+            DateTime lastLogin = reader.GetDateTime("last_login");
+
+            // BLOB (binary data)
+            byte[] profilePicture = reader.IsDBNull("profile_picture") 
+                ? null 
+                : (byte[])reader["profile_picture"];
+
+            // TEXT (long string)
+            string description = reader.GetString("description");
+
+            // Float (single precision)
+            float rating = reader.GetFloat("rating");
+
+            // ENUM (mapped as string)
+            string status = reader.GetString("status");
+
+            // CHAR or UUID
+            string uuid = reader.GetString("uuid");
+
+            // Use these variables...
+        }
+    }
+}

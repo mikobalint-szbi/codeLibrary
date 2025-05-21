@@ -34,3 +34,14 @@
 
 <input bind:value={name} placeholder="Név" />
 <button on:click={sendData}>Küldés</button>
+
+
+// --------------------------------------
+
+// Authentication:
+
+  const res = await fetch('https://api.example.com/secure-data', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
